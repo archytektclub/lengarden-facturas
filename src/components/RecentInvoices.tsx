@@ -50,22 +50,22 @@ export default function RecentInvoices({ facturas, onPayClick }: RecentInvoicesP
                 <table className="min-w-full divide-y divide-border">
                     <thead className="bg-surface2">
                         <tr>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
-                                N° Factura
-                            </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
-                                Cliente
-                            </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">
-                                Descripción
-                            </th>
-                            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">
-                                Monto
-                            </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
+                            <th scope="col" className="px-2 sm:px-4 py-2 text-left text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider w-20">
                                 Estado
                             </th>
-                            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider sticky right-0 bg-surface2 z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)] border-l border-border">
+                            <th scope="col" className="px-2 sm:px-4 py-2 text-left text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider w-16 sm:w-20">
+                                N°
+                            </th>
+                            <th scope="col" className="px-2 sm:px-4 py-2 text-left text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider">
+                                Cliente
+                            </th>
+                            <th scope="col" className="px-2 sm:px-4 py-2 text-left text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">
+                                Descripción
+                            </th>
+                            <th scope="col" className="px-2 sm:px-4 py-2 text-right text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider">
+                                Monto
+                            </th>
+                            <th scope="col" className="px-2 sm:px-4 py-2 text-right text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider sticky right-0 bg-surface2 z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)] border-l border-border">
                                 Acción
                             </th>
                         </tr>
@@ -75,35 +75,36 @@ export default function RecentInvoices({ facturas, onPayClick }: RecentInvoicesP
                             filteredFacturas.map((factura) => (
                                 <React.Fragment key={factura.id}>
                                     <tr className="hover:bg-surface2/50 transition-colors cursor-pointer" onClick={(e) => toggleRow(factura.id, e)}>
-                                        <td className="px-4 py-2 whitespace-nowrap text-sm font-mono text-muted">
-                                            {factura.numero}
-                                        </td>
-                                        <td className="px-4 py-2 text-sm font-medium text-text min-w-[150px]">
-                                            {factura.cliente}
-                                        </td>
-                                        <td className="px-4 py-2 text-sm text-text min-w-[200px] hidden md:table-cell" title={factura.descripcion || ""}>
-                                            {factura.descripcion || "-"}
-                                        </td>
-                                        <td className="px-4 py-2 whitespace-nowrap text-sm font-mono text-right text-text">
-                                            {formatCurrency(factura.monto)}
-                                        </td>
-                                        <td className="px-4 py-2 whitespace-nowrap text-sm">
+                                        <td className="px-2 sm:px-4 py-2 whitespace-nowrap text-xs w-20">
                                             <span
-                                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${factura.estado === "pagado"
+                                                className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] sm:text-xs font-medium sm:rounded-full ${factura.estado === "pagado"
                                                     ? "bg-cobrado/10 text-cobrado"
                                                     : factura.estado === "parcial"
                                                         ? "bg-blue-500/10 text-blue-400"
                                                         : "bg-pendiente/10 text-pendiente"
                                                     }`}
                                             >
-                                                {factura.estado.charAt(0).toUpperCase() + factura.estado.slice(1)}
+                                                {factura.estado.charAt(0).toUpperCase() + factura.estado.slice(1, 3) + (factura.estado.length > 3 ? "." : "")}
+                                                <span className="hidden sm:inline-block ml-0.5">{factura.estado.slice(3)}</span>
                                             </span>
                                         </td>
-                                        <td className="px-4 py-2 whitespace-nowrap text-right text-sm font-medium sticky right-0 bg-surface shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)] border-l border-border">
+                                        <td className="px-2 sm:px-4 py-2 whitespace-nowrap text-[10px] sm:text-xs font-mono text-muted w-16 sm:w-20">
+                                            {factura.numero}
+                                        </td>
+                                        <td className="px-2 sm:px-4 py-2 text-[10px] sm:text-xs font-medium text-text min-w-[100px] sm:min-w-[150px] max-w-[120px] sm:max-w-none truncate sm:whitespace-normal">
+                                            {factura.cliente}
+                                        </td>
+                                        <td className="px-2 sm:px-4 py-2 text-xs text-text min-w-[200px] hidden md:table-cell" title={factura.descripcion || ""}>
+                                            {factura.descripcion || "-"}
+                                        </td>
+                                        <td className="px-2 sm:px-4 py-2 whitespace-nowrap text-[10px] sm:text-xs font-mono text-right text-text">
+                                            {formatCurrency(factura.monto)}
+                                        </td>
+                                        <td className="px-2 sm:px-4 py-2 whitespace-nowrap text-right text-xs font-medium sticky right-0 bg-surface shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)] border-l border-border">
                                             {factura.estado !== "pagado" && (
                                                 <button
                                                     onClick={() => onPayClick(factura)}
-                                                    className="text-black bg-accent hover:bg-accent/90 px-3 py-1 rounded-md transition-colors text-xs inline-flex items-center"
+                                                    className="text-black bg-accent hover:bg-accent/90 px-2 sm:px-3 py-1 rounded-md transition-colors text-[10px] sm:text-xs inline-flex items-center"
                                                 >
                                                     Pagar
                                                 </button>
@@ -112,10 +113,11 @@ export default function RecentInvoices({ facturas, onPayClick }: RecentInvoicesP
                                     </tr>
                                     {expandedRowId === factura.id && (
                                         <tr className="bg-surface2/30 border-b border-border md:hidden animate-fade-in fade-in">
-                                            <td colSpan={6} className="px-4 py-3">
-                                                <div className="flex flex-col space-y-2 text-sm">
+                                            <td colSpan={6} className="px-3 py-3">
+                                                <div className="flex flex-col space-y-2 text-[10px]">
                                                     <div><span className="font-medium text-muted">Fecha Emisión:</span> <span className="text-text">{formatDate(factura.fecha_emision)}</span></div>
                                                     <div><span className="font-medium text-muted">Descripción:</span> <span className="text-text">{factura.descripcion || "Sin descripción"}</span></div>
+                                                    <div><span className="font-medium text-muted">Estado Completo:</span> <span className="text-text capitalize">{factura.estado}</span></div>
                                                 </div>
                                             </td>
                                         </tr>
