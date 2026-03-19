@@ -1,64 +1,171 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import Header from "@/components/Header";
+import KPICards from "@/components/KPICards";
+import ProgressBar from "@/components/ProgressBar";
+import BarChart from "@/components/BarChart";
+import RecentInvoices from "@/components/RecentInvoices";
+import PaymentModal from "@/components/PaymentModal";
+import { Factura } from "@/types";
+import { supabase } from "@/lib/supabase";
+import { startOfMonth, endOfMonth, subMonths, addMonths, format, parseISO, parse } from "date-fns";
+import { es } from "date-fns/locale";
+
+export default function Dashboard() {
+  const [facturas, setFacturas] = useState<Factura[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedFactura, setSelectedFactura] = useState<Factura | null>(null);
+
+  // Month navigation state
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  const loadData = async () => {
+    setLoading(true);
+
+    // Fetch current month invoices
+    const start = startOfMonth(currentDate).toISOString();
+    const end = endOfMonth(currentDate).toISOString();
+
+    const { data: currentMonthData, error: currentError } = await supabase
+      .from("facturas")
+      .select("*")
+      .gte("fecha_emision", start)
+      .lte("fecha_emision", end)
+      .order("fecha_emision", { ascending: false });
+
+    if (currentError) {
+      console.error("Error fetching current month data", currentError);
+    } else {
+      setFacturas(currentMonthData || []);
+    }
+
+    // Fetch 12 months data for chart
+    const yearAgo = startOfMonth(subMonths(currentDate, 11)).toISOString();
+    const { data: yearData, error: yearError } = await supabase
+      .from("facturas")
+      .select("monto, estado, fecha_emision")
+      .gte("fecha_emision", yearAgo);
+
+    if (yearError) {
+      console.error("Error fetching yearly data", yearError);
+    } else if (yearData) {
+      // Process data for chart
+      const monthsMap = new Map();
+
+      // Initialize last 12 months
+      for (let i = 11; i >= 0; i--) {
+        const d = subMonths(currentDate, i);
+        const name = format(d, "MMM yy", { locale: es });
+        monthsMap.set(name, { name, Facturado: 0, Cobrado: 0 });
+      }
+
+      yearData.forEach((f) => {
+        const d = parseISO(f.fecha_emision);
+        const name = format(d, "MMM yy", { locale: es });
+        if (monthsMap.has(name)) {
+          const entry = monthsMap.get(name);
+          entry.Facturado += f.monto;
+          if (f.estado === "pagado") {
+            entry.Cobrado += f.monto;
+          } else if (f.estado === "parcial") {
+            // If we had partial payments tracked exactly this could be improved
+            // For now we add a portion or just 0, sticking to the prompt: Cobrado = pagadas
+          }
+        }
+      });
+
+      setChartData(Array.from(monthsMap.values()));
+    }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentDate]);
+
+  const handlePrevMonth = () => setCurrentDate(prev => subMonths(prev, 1));
+  const handleNextMonth = () => setCurrentDate(prev => addMonths(prev, 1));
+
+  const handleBarClick = (monthStr: string) => {
+    // monthStr comes as "Ene 25" e.g
+    try {
+      const parsedDate = parse(monthStr, "MMM yy", new Date(), { locale: es });
+      if (!isNaN(parsedDate.getTime())) {
+        setCurrentDate(parsedDate);
+      }
+    } catch (e) { console.error("Error parsing string from chart", e) }
+  };
+
+  const handleExport = () => {
+    // To be implemented as an Excel export
+    alert("Exportación a Excel en desarrollo...");
+  };
+
+  const handlePayClick = (factura: Factura) => {
+    setSelectedFactura(factura);
+    setIsModalOpen(true);
+  };
+
+  const currentMonthFacturado = facturas.reduce((sum, f) => sum + f.monto, 0);
+  const currentMonthCobrado = facturas
+    .filter((f) => f.estado === "pagado")
+    .reduce((sum, f) => sum + f.monto, 0);
+  const currentMonthPendiente = facturas
+    .filter((f) => f.estado !== "pagado")
+    .reduce((sum, f) => sum + f.monto, 0);
+  const porcentajeCobrado = currentMonthFacturado > 0 ? (currentMonthCobrado / currentMonthFacturado) * 100 : 0;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-bg flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="min-h-screen bg-bg text-text pb-24 md:pb-8">
+      <Header
+        currentDate={currentDate}
+        onExport={handleExport}
+        isExporting={false}
+        onPrevMonth={handlePrevMonth}
+        onNextMonth={handleNextMonth}
+      />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in fade-in">
+        <KPICards
+          totalFacturado={currentMonthFacturado}
+          totalCobrado={currentMonthCobrado}
+          totalPendiente={currentMonthPendiente}
+          cantidadFacturas={facturas.length}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+        <ProgressBar porcentaje={porcentajeCobrado} />
+
+        <BarChart
+          data={chartData}
+          onBarClick={handleBarClick}
+        />
+
+        <RecentInvoices
+          facturas={facturas}
+          onPayClick={handlePayClick}
+        />
+
+        <PaymentModal
+          factura={selectedFactura}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={loadData}
+        />
       </main>
     </div>
   );
