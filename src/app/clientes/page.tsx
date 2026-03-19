@@ -285,64 +285,65 @@ export default function ClientesPage() {
                                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent"></div>
                             </div>
                         ) : (
-                            <table className="min-w-full divide-y divide-border">
+                            <table className="min-w-full divide-y divide-border table-fixed">
                                 <thead className="bg-surface2">
                                     <tr>
-                                        <th scope="col" className="px-6 py-3 text-left w-12 border-r border-border">
+                                        <th scope="col" className="px-2 sm:px-4 py-2 text-left w-8 sm:w-10 border-r border-border">
                                             <input
                                                 type="checkbox"
-                                                className="rounded border-border bg-surface text-accent focus:ring-accent w-4 h-4 cursor-pointer"
+                                                className="rounded border-border bg-surface text-accent focus:ring-accent w-3 h-3 sm:w-4 sm:h-4 cursor-pointer"
                                                 checked={filteredClientes.length > 0 && selectedClientes.length === filteredClientes.length}
                                                 onChange={handleSelectAll}
                                             />
                                         </th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Nombre & Contacto</th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">RUT</th>
-                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">Facturas</th>
-                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">Facturado (Histórico)</th>
-                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">Deuda Actual</th>
-                                        <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Acciones</th>
+                                        <th scope="col" className="px-2 sm:px-4 py-2 text-left text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider">Cliente & Contacto</th>
+                                        <th scope="col" className="px-2 sm:px-4 py-2 text-left text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">RUT</th>
+                                        <th scope="col" className="px-2 sm:px-4 py-2 text-right text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider w-8 sm:w-16">N°</th>
+                                        <th scope="col" className="px-2 sm:px-4 py-2 text-right text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider w-16 sm:w-28">Total</th>
+                                        <th scope="col" className="px-2 sm:px-4 py-2 text-right text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider w-16 sm:w-28">Deuda</th>
+                                        <th scope="col" className="px-2 sm:px-4 py-2 text-center text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider w-16 sm:w-32">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-surface divide-y divide-border">
                                     {filteredClientes.length > 0 ? (
                                         filteredClientes.map((cliente) => (
                                             <tr key={cliente.id} className="hover:bg-surface2/50 transition-colors">
-                                                <td className="px-6 py-4 whitespace-nowrap border-r border-border" onClick={(e) => e.stopPropagation()}>
+                                                <td className="px-2 sm:px-4 py-2 whitespace-nowrap border-r border-border" onClick={(e) => e.stopPropagation()}>
                                                     <input
                                                         type="checkbox"
-                                                        className="rounded border-border bg-surface text-accent focus:ring-accent w-4 h-4 cursor-pointer"
+                                                        className="rounded border-border bg-surface text-accent focus:ring-accent w-3 h-3 sm:w-4 sm:h-4 cursor-pointer"
                                                         checked={selectedClientes.includes(cliente.id)}
                                                         onChange={() => handleSelectOne(cliente.id)}
                                                     />
                                                 </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="text-sm font-medium text-text min-w-[200px]">{cliente.nombre}</div>
-                                                    <div className="text-xs text-muted">{cliente.email || "Sin email"}</div>
+                                                <td className="px-2 sm:px-4 py-2">
+                                                    <div className="text-[10px] sm:text-sm font-medium text-text whitespace-normal break-words">{cliente.nombre}</div>
+                                                    <div className="text-[9px] sm:text-xs text-muted truncate">{cliente.email || "Sin email"}</div>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-muted hidden md:table-cell">
+                                                <td className="px-2 sm:px-4 py-2 whitespace-nowrap text-[10px] sm:text-sm text-muted hidden md:table-cell">
                                                     {cliente.rut || "-"}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-text font-mono">
+                                                <td className="px-2 sm:px-4 py-2 whitespace-nowrap text-[10px] sm:text-sm text-right text-text font-mono">
                                                     {cliente.facturasCount}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-text font-mono">
+                                                <td className="px-2 sm:px-4 py-2 whitespace-nowrap text-[10px] sm:text-sm text-right text-text font-mono">
                                                     {formatCurrency(cliente.totalFacturado)}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                                                <td className="px-2 sm:px-4 py-2 whitespace-nowrap text-right">
                                                     <span className={classNames(
-                                                        "font-mono px-2 py-0.5 rounded text-xs",
+                                                        "font-mono px-1 sm:px-2 py-0.5 rounded text-[9px] sm:text-xs",
                                                         cliente.totalPendiente > 0 ? "bg-pendiente/10 text-pendiente" : "text-muted"
                                                     )}>
                                                         {formatCurrency(cliente.totalPendiente)}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-3">
+                                                <td className="px-2 sm:px-4 py-2 whitespace-nowrap text-center text-[10px] sm:text-sm font-medium space-x-1 sm:space-x-3">
                                                     <Link
                                                         href={`/facturas?cliente=${encodeURIComponent(cliente.nombre)}`}
-                                                        className="text-accent hover:text-accent/80 transition-colors inline-flex items-center"
+                                                        className="text-accent hover:text-accent/80 transition-colors inline-block align-middle"
                                                     >
-                                                        Ver ficha <ChevronRight className="w-4 h-4 ml-1" />
+                                                        <span className="hidden sm:inline-flex items-center">Ver ficha <ChevronRight className="w-4 h-4 ml-1" /></span>
+                                                        <span className="sm:hidden text-accent border border-accent/30 bg-accent/10 rounded px-1.5 py-0.5">Ficha</span>
                                                     </Link>
                                                     <button
                                                         onClick={() => handleDelete(cliente.id, cliente.nombre)}
