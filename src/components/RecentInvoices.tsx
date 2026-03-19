@@ -47,25 +47,25 @@ export default function RecentInvoices({ facturas, onPayClick }: RecentInvoicesP
             </div>
 
             <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-border">
+                <table className="min-w-full divide-y divide-border table-fixed">
                     <thead className="bg-surface2">
                         <tr>
-                            <th scope="col" className="px-2 sm:px-4 py-2 text-left text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider w-20">
+                            <th scope="col" className="px-2 sm:px-4 py-2 text-left text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider w-16 sm:w-20">
                                 Estado
                             </th>
                             <th scope="col" className="px-2 sm:px-4 py-2 text-left text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider w-16 sm:w-20">
-                                N°
+                                Factura
                             </th>
                             <th scope="col" className="px-2 sm:px-4 py-2 text-left text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider">
                                 Cliente
                             </th>
-                            <th scope="col" className="px-2 sm:px-4 py-2 text-left text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell">
+                            <th scope="col" className="px-2 sm:px-4 py-2 text-left text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider hidden md:table-cell w-32">
                                 Descripción
                             </th>
-                            <th scope="col" className="px-2 sm:px-4 py-2 text-right text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider">
+                            <th scope="col" className="px-2 sm:px-4 py-2 text-right text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider w-16 sm:w-24">
                                 Monto
                             </th>
-                            <th scope="col" className="px-2 sm:px-4 py-2 text-right text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider sticky right-0 bg-surface2 z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)] border-l border-border">
+                            <th scope="col" className="px-2 sm:px-4 py-2 text-right text-[10px] sm:text-xs font-medium text-muted uppercase tracking-wider sticky right-0 bg-surface2 z-10 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)] border-l border-border w-14 sm:w-20">
                                 Acción
                             </th>
                         </tr>
@@ -75,7 +75,7 @@ export default function RecentInvoices({ facturas, onPayClick }: RecentInvoicesP
                             filteredFacturas.map((factura) => (
                                 <React.Fragment key={factura.id}>
                                     <tr className="hover:bg-surface2/50 transition-colors cursor-pointer" onClick={(e) => toggleRow(factura.id, e)}>
-                                        <td className="px-2 sm:px-4 py-2 whitespace-nowrap text-xs w-20">
+                                        <td className="px-2 sm:px-4 py-2 text-xs">
                                             <span
                                                 className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] sm:text-xs font-medium sm:rounded-full ${factura.estado === "pagado"
                                                     ? "bg-cobrado/10 text-cobrado"
@@ -88,19 +88,19 @@ export default function RecentInvoices({ facturas, onPayClick }: RecentInvoicesP
                                                 <span className="hidden sm:inline-block ml-0.5">{factura.estado.slice(3)}</span>
                                             </span>
                                         </td>
-                                        <td className="px-2 sm:px-4 py-2 whitespace-nowrap text-[10px] sm:text-xs font-mono text-muted w-16 sm:w-20">
+                                        <td className="px-2 sm:px-4 py-2 text-[10px] sm:text-xs font-mono text-muted break-all">
                                             {factura.numero}
                                         </td>
-                                        <td className="px-2 sm:px-4 py-2 text-[10px] sm:text-xs font-medium text-text min-w-[100px] sm:min-w-[150px] max-w-[120px] sm:max-w-none truncate sm:whitespace-normal">
+                                        <td className="px-2 sm:px-4 py-2 text-[10px] sm:text-xs font-medium text-text whitespace-normal break-words">
                                             {factura.cliente}
                                         </td>
-                                        <td className="px-2 sm:px-4 py-2 text-xs text-text min-w-[200px] hidden md:table-cell" title={factura.descripcion || ""}>
+                                        <td className="px-2 sm:px-4 py-2 text-xs text-text hidden md:table-cell truncate" title={factura.descripcion || ""}>
                                             {factura.descripcion || "-"}
                                         </td>
-                                        <td className="px-2 sm:px-4 py-2 whitespace-nowrap text-[10px] sm:text-xs font-mono text-right text-text">
+                                        <td className="px-2 sm:px-4 py-2 text-[10px] sm:text-xs font-mono text-right text-text whitespace-nowrap">
                                             {formatCurrency(factura.monto)}
                                         </td>
-                                        <td className="px-2 sm:px-4 py-2 whitespace-nowrap text-right text-xs font-medium sticky right-0 bg-surface shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)] border-l border-border">
+                                        <td className="px-2 sm:px-4 py-2 text-right text-xs font-medium sticky right-0 bg-surface shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)] border-l border-border">
                                             {factura.estado !== "pagado" && (
                                                 <button
                                                     onClick={() => onPayClick(factura)}
