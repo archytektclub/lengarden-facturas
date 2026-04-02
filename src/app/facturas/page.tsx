@@ -102,8 +102,8 @@ function FacturasPageContent() {
         if (!urlClient) {
             const facturaDate = new Date(f.fecha_emision);
             matchesMonth =
-                facturaDate.getMonth() === currentDate.getMonth() &&
-                facturaDate.getFullYear() === currentDate.getFullYear();
+                facturaDate.getUTCMonth() === currentDate.getMonth() &&
+                facturaDate.getUTCFullYear() === currentDate.getFullYear();
         }
 
         return matchesSearch && matchesStatus && matchesMonth;
@@ -147,7 +147,7 @@ function FacturasPageContent() {
                 f.numero,
                 f.cliente,
                 desc,
-                format(new Date(f.fecha_emision), "dd/MMM/yy", { locale: es }),
+                format(new Date(new Date(f.fecha_emision).getTime() + new Date(f.fecha_emision).getTimezoneOffset() * 60000), "dd/MMM/yy", { locale: es }),
                 f.estado.toUpperCase(),
                 formatCurrency(f.monto)
             ];

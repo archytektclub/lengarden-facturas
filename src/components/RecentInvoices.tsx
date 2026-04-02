@@ -24,7 +24,9 @@ export default function RecentInvoices({ facturas, onPayClick }: RecentInvoicesP
     const filteredFacturas = facturas
         .filter((f) =>
             f.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            f.numero.toLowerCase().includes(searchTerm.toLowerCase())
+            f.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (f.rut_cliente || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+            f.monto.toString().includes(searchTerm)
         )
         .sort((a, b) => new Date(b.fecha_emision).getTime() - new Date(a.fecha_emision).getTime());
 
@@ -38,7 +40,7 @@ export default function RecentInvoices({ facturas, onPayClick }: RecentInvoicesP
                     </div>
                     <input
                         type="text"
-                        placeholder="Buscar por cliente o N°..."
+                        placeholder="Buscar por cliente, RUT, N° o monto..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-9 pr-4 py-2 border border-border rounded-md shadow-sm bg-surface2 text-sm text-text focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent w-full sm:w-64"

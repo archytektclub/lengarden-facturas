@@ -28,8 +28,8 @@ export default function Dashboard() {
     setLoading(true);
 
     // Fetch current month invoices
-    const start = startOfMonth(currentDate).toISOString();
-    const end = endOfMonth(currentDate).toISOString();
+    const start = format(startOfMonth(currentDate), "yyyy-MM-dd");
+    const end = format(endOfMonth(currentDate), "yyyy-MM-dd");
 
     const { data: currentMonthData, error: currentError } = await supabase
       .from("facturas")
@@ -45,7 +45,7 @@ export default function Dashboard() {
     }
 
     // Fetch 12 months data for chart
-    const yearAgo = startOfMonth(subMonths(currentDate, 11)).toISOString();
+    const yearAgo = format(startOfMonth(subMonths(currentDate, 11)), "yyyy-MM-dd");
     const { data: yearData, error: yearError } = await supabase
       .from("facturas")
       .select("monto, estado, fecha_emision")
