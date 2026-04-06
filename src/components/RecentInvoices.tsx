@@ -13,6 +13,7 @@ interface RecentInvoicesProps {
 
 export default function RecentInvoices({ facturas, onPayClick }: RecentInvoicesProps) {
     const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState<"todos" | "pendiente" | "pagado" | "parcial">("todos");
     const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
 
     const toggleRow = (id: string, e: React.MouseEvent) => {
@@ -22,25 +23,60 @@ export default function RecentInvoices({ facturas, onPayClick }: RecentInvoicesP
     };
 
     const filteredFacturas = facturas
-        .filter((f) =>
-            f.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            f.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (f.rut_cliente || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-            f.monto.toString().includes(searchTerm)
-        )
+        .filter((f) => {
+            const matchesSearch =
+                f.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                f.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (f.rut_cliente || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+                f.monto.toString().includes(searchTerm);
+
+            const matchesStatus = statusFilter === "todos" || f.estado === statusFilter;
+
+            return matchesSearch && matchesStatus;
+        })
         .sort((a, b) => new Date(b.fecha_emision).getTime() - new Date(a.fecha_emision).getTime());
+    
+    // Status filter options
+    const filterOptions = [
+        { label: "Todos", value: "todos" as const },
+        { label: "Pendientes", value: "pendiente" as const, color: "text-pendiente bg-pendiente/10 border-pendiente/20" },
+        { label: "Pagados", value: "pagado" as const, color: "text-cobrado bg-cobrado/10 border-cobrado/20" },
+        { label: "Parciales", value: "parcial" as const, color: "text-blue-400 bg-blue-500/10 border-blue-500/20" },
+    ];
 
     return (
         <div className="bg-surface border border-border rounded-xl flex flex-col shadow-sm mb-8 overflow-hidden">
-            <div className="p-5 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h3 className="text-lg font-display text-text">Facturas del mes</h3>
+            <div className="p-5 border-b border-border flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                    <h3 className="text-lg font-display text-text whitespace-nowrap">Facturas del mes</h3>
+                    
+                    {/* Status Filters */}
+                    <div className="flex flex-wrap gap-2">
+                        {filterOptions.map((option) => (
+                            <button
+                                key={option.value}
+                                onClick={() => setStatusFilter(option.value)}
+                                className={`px-3 py-1 rounded-full text-xs font-medium border transition-all duration-200 ${
+                                    statusFilter === option.value
+                                        ? option.value === "todos"
+                                            ? "bg-accent text-black border-accent"
+                                            : `${option.color} border-current ring-1 ring-current/20`
+                                        : "bg-surface2 text-muted border-border hover:border-muted/30"
+                                }`}
+                            >
+                                {option.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
                 <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Search className="h-4 w-4 text-muted" />
                     </div>
                     <input
                         type="text"
-                        placeholder="Buscar por cliente, RUT, N° o monto..."
+                        placeholder="Buscar cliente, RUT, N°..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-9 pr-4 py-2 border border-border rounded-md shadow-sm bg-surface2 text-sm text-text focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent w-full sm:w-64"
