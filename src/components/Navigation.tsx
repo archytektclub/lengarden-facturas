@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, History, Users } from "lucide-react";
+import { LayoutDashboard, FileText, History, Users, Map } from "lucide-react";
 import { classNames } from "@/lib/utils";
 
 const navigation = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
     { name: "Facturas", href: "/facturas", icon: FileText },
+    { name: "Mapa", href: "/mapa", icon: Map },
     { name: "Historial", href: "/historial", icon: History },
     { name: "Clientes", href: "/clientes", icon: Users },
 ];

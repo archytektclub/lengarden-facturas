@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import { Cliente, Factura } from "@/types";
 import { supabase } from "@/lib/supabase";
 import { formatCurrency, classNames } from "@/lib/utils";
-import { Search, ChevronRight, User, Trash2, Sparkles } from "lucide-react";
+import { Search, ChevronRight, User, Trash2, Sparkles, Pencil } from "lucide-react";
 import NuevoClienteModal from "@/components/NuevoClienteModal";
 import ConfirmModal from "@/components/ConfirmModal";
 import Link from "next/link";
@@ -22,6 +22,7 @@ export default function ClientesPage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [isNuevoClienteModalOpen, setIsNuevoClienteModalOpen] = useState(false);
+    const [clienteToEdit, setClienteToEdit] = useState<Cliente | null>(null);
     const [selectedClientes, setSelectedClientes] = useState<string[]>([]);
     const [confirmConfig, setConfirmConfig] = useState<{
         isOpen: boolean;
@@ -38,7 +39,7 @@ export default function ClientesPage() {
         const { data: clientsData, error: clientsError } = await supabase
             .from("clientes")
             .select("*")
-            .order("nombre");
+            .order("rut", { ascending: true, nullsFirst: false });
 
         if (clientsError || !clientsData) {
             console.error(clientsError);
@@ -346,6 +347,16 @@ export default function ClientesPage() {
                                                         <span className="sm:hidden text-accent border border-accent/30 bg-accent/10 rounded px-1.5 py-0.5">Ficha</span>
                                                     </Link>
                                                     <button
+                                                        onClick={() => {
+                                                            setClienteToEdit(cliente);
+                                                            setIsNuevoClienteModalOpen(true);
+                                                        }}
+                                                        className="text-muted hover:text-accent p-1 rounded-md transition-colors inline-block align-middle"
+                                                        title="Editar cliente"
+                                                    >
+                                                        <Pencil className="w-4 h-4" />
+                                                    </button>
+                                                    <button
                                                         onClick={() => handleDelete(cliente.id, cliente.nombre)}
                                                         className="text-muted hover:text-danger p-1 rounded-md transition-colors inline-block align-middle"
                                                         title="Eliminar cliente"
@@ -370,8 +381,12 @@ export default function ClientesPage() {
 
                 <NuevoClienteModal
                     isOpen={isNuevoClienteModalOpen}
-                    onClose={() => setIsNuevoClienteModalOpen(false)}
+                    onClose={() => {
+                        setIsNuevoClienteModalOpen(false);
+                        setClienteToEdit(null);
+                    }}
                     onSuccess={loadClientes}
+                    clienteToEdit={clienteToEdit}
                 />
 
                 <ConfirmModal
